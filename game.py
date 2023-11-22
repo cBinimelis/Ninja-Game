@@ -2,6 +2,7 @@ import pygame, sys
 from scripts.utils import load_image, load_images
 from scripts.entities import PhisicsEntity
 from scripts.tilemap import Tilemap
+from scripts.clouds import Clouds
 from pygame.locals import *
 
 
@@ -25,21 +26,35 @@ class Game:
             'grass':load_images('tiles/grass'),
             'stone':load_images('tiles/stone'),
             'large_decor':load_images('tiles/large_decor'),
-            'player': load_image('entities/player.png')
+            'player': load_image('entities/player.png'),
+            'background': load_image('background.png'),
+            'clouds': load_images('clouds')
         }
 
         #self.collision_area = pygame.Rect(50, 50, 300, 50)
+
+        self.clouds = Clouds(self.assets['clouds'], count=16)
 
         self.player = PhisicsEntity(self,'player',(50,49), (8,15))
 
         self.tilemap = Tilemap(self, tile_size=16)
 
+        self.scroll = [0, 0]
+
     def run(self):
         while True:
-            self.display.fill((14, 219, 248))
-            self.tilemap.render(self.display)
+            self.display.blit(self.assets['background'], (0, 0))
+            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 10
+            self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 10
+            
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+
+            self.clouds.update()
+            self.clouds.render(self.display, offset= render_scroll)
+
+            self.tilemap.render(self.display, offset = render_scroll)
             self.player.update(self.tilemap, (self.movement[1]-self.movement[0],0))
-            self.player.render(self.display)
+            self.player.render(self.display, offset = render_scroll)
 
 
             #collision rectangle
@@ -57,16 +72,18 @@ class Game:
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
+
                 if event.type == KEYDOWN:
                     if event.key == K_LEFT or event.key == K_a:
                         self.movement[0] = True
                     if event.key == K_RIGHT or event.key == K_d:
                         self.movement[1] = True
-                    if event.key== K_UP:
+                    if event.key == K_UP or event.key == K_w:
                         self.player. velocity[1] = -3
                     if event.key == K_ESCAPE:
                         pygame.quit()
                         sys.exit()
+
                 if event.type == KEYUP:
                     if event.key == K_LEFT or event.key == K_a:
                         self.movement[0] = False
@@ -79,6 +96,5 @@ class Game:
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
-
 
 Game().run()
