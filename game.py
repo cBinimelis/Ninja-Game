@@ -1,6 +1,6 @@
 import pygame, sys
-from scripts.utils import load_image, load_images
-from scripts.entities import PhisicsEntity
+from scripts.utils import load_image, load_images, Animation
+from scripts.entities import PhisicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from pygame.locals import *
@@ -28,14 +28,19 @@ class Game:
             'large_decor':load_images('tiles/large_decor'),
             'player': load_image('entities/player.png'),
             'background': load_image('background.png'),
-            'clouds': load_images('clouds')
+            'clouds': load_images('clouds'),
+            'player/idle': Animation(load_images('entities/player/idle'), img_dur=6),
+            'player/run': Animation(load_images('entities/player/run'), img_dur=4),
+            'player/jump': Animation(load_images('entities/player/jump')),
+            'player/slide': Animation(load_images('entities/player/slide')),
+            'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
         }
 
         #self.collision_area = pygame.Rect(50, 50, 300, 50)
 
         self.clouds = Clouds(self.assets['clouds'], count=16)
 
-        self.player = PhisicsEntity(self,'player',(50,49), (8,15))
+        self.player = Player(self,(50,49), (8,15))
 
         self.tilemap = Tilemap(self, tile_size=16)
 
