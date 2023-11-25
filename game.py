@@ -5,14 +5,12 @@ from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from pygame.locals import *
 
-
 class Game:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('Ninja Game')
         self.screen = pygame.display.set_mode((640, 480))
         self.display = pygame.Surface((320,240))
-
 
         self.clock = pygame.time.Clock()
 
@@ -60,7 +58,6 @@ class Game:
             self.tilemap.render(self.display, offset = render_scroll)
             self.player.update(self.tilemap, (self.movement[1]-self.movement[0],0))
             self.player.render(self.display, offset = render_scroll)
-
 
             #collision rectangle
             #img_r = pygame.Rect (self.img_pos[0], self.img_pos[1], self.img.get_width(), self.img.get_height())
