@@ -22,7 +22,7 @@ class Editor:
 
         self.movement = [False, False, False, False]
         self.tilemap = Tilemap(self, tile_size=16)
-        
+
         try:
             self.tilemap.load('map.json')
         except FileNotFoundError:
@@ -35,7 +35,7 @@ class Editor:
         self.clicking = False
         self.right_clicking = False
         self.shift = False
-        self.ongrid = False
+        self.ongrid = True
 
     def run(self):
         while True:
@@ -119,6 +119,8 @@ class Editor:
                         self.movement[3] = True
                     if event.key == K_g:
                         self.ongrid = not self.ongrid
+                    if event.key == K_t:
+                        self.tilemap.autotile()
                     if event.key == K_o:
                         self.tilemap.save('map.json')
                     if event.key == K_LSHIFT:
