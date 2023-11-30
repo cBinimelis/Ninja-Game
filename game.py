@@ -34,6 +34,7 @@ class Game:
             'player/slide': Animation(load_images('entities/player/slide')),
             'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
             'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop= False),
+            'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop= False),
         }
 
         #self.collision_area = pygame.Rect(50, 50, 300, 50)
@@ -109,6 +110,8 @@ class Game:
                         self.movement[1] = True
                     if event.key == K_UP or event.key == K_w:
                         self.player.jump()
+                    if event.key == K_x:
+                        self.player.dash()
                     if event.key == K_ESCAPE:
                         pygame.quit()
                         sys.exit()
