@@ -34,6 +34,7 @@ class Game:
             'player/slide': Animation(load_images('entities/player/slide')),
             'enemy/idle': Animation(load_images('entities/enemy/idle'), img_dur=6),
             'enemy/run': Animation(load_images('entities/enemy/run'), img_dur=6),
+            'gun': load_image('gun.png'),
             'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
             'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop= False),
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop= False),
@@ -87,6 +88,7 @@ class Game:
             for enemy in self.enemies.copy():
                 enemy.update(self.tilemap, (0, 0))
                 enemy.render(self.display, offset= render_scroll)
+                
             self.player.update(self.tilemap, (self.movement[1]-self.movement[0],0))
             self.player.render(self.display, offset = render_scroll)
 
@@ -121,7 +123,7 @@ class Game:
                         self.movement[1] = True
                     if event.key == K_UP or event.key == K_w:
                         self.player.jump()
-                    if event.key == K_x:
+                    if event.key == K_SPACE:
                         self.player.dash()
                     if event.key == K_ESCAPE:
                         pygame.quit()
