@@ -12,8 +12,8 @@ class Game:
         pygame.init()
         pygame.display.set_caption('Ninja Game')
         self.screen = pygame.display.set_mode((640, 480))
-        self.display = pygame.Surface((320,240))
-
+        self.display = pygame.Surface((320,240), pygame.SRCALPHA)
+        self.display_2 = pygame.Surface((320,240))
         self.clock = pygame.time.Clock()
 
         #self.img = pygame.image.load('data/images/clouds/cloud_1.png')
@@ -41,6 +41,20 @@ class Game:
             'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop= False),
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop= False),
         }
+
+        self.sfx = {
+            'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
+            'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
+            'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
+            'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
+            'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
+        }
+
+        self.sfx['jump'].set_volume(0.2)
+        self.sfx['dash'].set_volume(0.3)
+        self.sfx['hit'].set_volume(0.8)
+        self.sfx['shoot'].set_volume(0.4)
+        self.sfx['ambience'].set_volume(0.4)
 
         #self.collision_area = pygame.Rect(50, 50, 300, 50)
 
@@ -84,8 +98,15 @@ class Game:
         self.transition = -30
 
     def run(self):
+        pygame.mixer.music.load('data/music.wav')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
+        self.sfx['ambience'].play(-1)
+
         while True:
-            self.display.blit(self.assets['background'], (0, 0))
+            self.display.fill((0, 0, 0, 0))
+            self.display_2.blit(self.assets['background'], (0, 0))
 
             self.screenshake = max(0, self.screenshake - 1)
 
@@ -117,7 +138,7 @@ class Game:
                     
 
             self.clouds.update()
-            self.clouds.render(self.display, offset= render_scroll)
+            self.clouds.render(self.display_2, offset= render_scroll)
             self.tilemap.render(self.display, offset = render_scroll)
             for enemy in self.enemies.copy():
                 kill = enemy.update(self.tilemap, (0, 0))
@@ -145,6 +166,7 @@ class Game:
                         self.projectiles.remove(projectile)
                         self.dead += 1
                         self.screenshake = max(16, self.screenshake)
+                        self.sfx['hit'].play()
                         for i in range(30):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 5
@@ -156,7 +178,11 @@ class Game:
                 spark.render(self.display, offset=render_scroll)
                 if kill:
                     self.sparks.remove(spark)
-
+            
+            display_mask = pygame.mask.from_surface(self.display)
+            display_sillhouette = display_mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))
+            for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                self.display_2.blit(display_sillhouette, offset)
 
             for particle in self.particles.copy():
                 kill = particle.update()
@@ -188,7 +214,8 @@ class Game:
                     if event.key == K_RIGHT or event.key == K_d:
                         self.movement[1] = True
                     if event.key == K_UP or event.key == K_w:
-                        self.player.jump()
+                        if self.player.jump():
+                            self.sfx['jump'].play()
                     if event.key == K_SPACE:
                         self.player.dash()
                     if event.key == K_ESCAPE:
@@ -210,8 +237,10 @@ class Game:
                 transition_surf.set_colorkey((255, 255, 255))
                 self.display.blit(transition_surf, (0, 0))
 
+            self.display_2.blit(self.display, (0, 0))
+
             screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
-            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), screenshake_offset)
+            self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), screenshake_offset)
             pygame.display.update()
             self.clock.tick(60)
 
